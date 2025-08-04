@@ -157,12 +157,10 @@ server <- function(input, output, session) {
     p = ggsurvplot(
       fit,
       data = df,
-      conf.int = TRUE,
       risk.table = TRUE,
       risk.table.col = "strata",
       ggtheme = theme_bw(),
-      title = "Survival Curve by Song",
-      palette = "viridis"
+      title = "Survival Curve by Song"
     ) 
     
     # Convert the ggsurvplot ggplot object to an interactive plotly object.
@@ -173,3 +171,7 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
+rsconnect::deployApp(
+       appDir = "/Users/jake/Documents/sacred_harp_km/survival_analysis",
+       appPrimaryDoc = "survival_analysis_sacred_harp_app.R"
+   )
