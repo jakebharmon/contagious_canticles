@@ -1,10 +1,10 @@
 ---
 title: "Contagious Canticles"
-format: html
 editor: visual
-output:
-  html_document:
-    keep_md: true
+format:
+  md:
+    ext: .md
+output: github-document
 ---
 
 *Remember, Lord, our mortal state;\

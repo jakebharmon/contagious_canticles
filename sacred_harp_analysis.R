@@ -1,0 +1,120 @@
+# # Load packages
+pacman::p_load(
+  DBI, RSQLite, tidyverse, survival, survminer, shiny, lubridate
+)
+
+# Removeed
+
+removed_text = c(
+  "HOME IN HEAVEN (41)
+  MORTALITY (50t)
+  HUMILITY (50b)
+  MY HOME (51)
+  THE BLESSED LAMB (54)
+  SISTER’S FAREWELL (55)
+  SHOUTING SONG (80t)
+  COOKHAM (81b)
+  EDMONDS (115)
+  UNION (116)
+  STOCKWOOD (118)
+  MILLENNIUM (130)
+  SWEET SOLITUDE (140)
+  WAR DEPARTMENT (160t)
+  SWEET HOME (161)
+  DARTMOUTH (169)
+  ENFIELD (184)
+  SPRING (188)
+  WARNING (213b)
+  PORTUGUESE HYMN (223)
+  THOU ART PASSING AWAY (231)
+  ODE ON SCIENCE (242)
+  ROSE OF SHARON (254)
+  DODDRIDGE (263)
+  KINGWOOD (266)
+  THE SHEPHERD’S FLOCK (279)
+  AKERS (293)
+  ODEM (295)
+  PARTING FRIENDS (308)
+  SOFT MUSIC (323b)
+  HORTON (330t)
+  JESTER (331)
+  O COME AWAY (334)
+  ANTHEM ON THE SAVIOR (355)
+  CONSOLATION (367)
+  SING ON (381)
+  ALEXANDER (393)
+  NEW BETHEL (395)
+  PROMISED DAY (409)
+  THE LOVED ONES (413)
+  EASTER MORN (415)
+  CHRISTIAN’S DELIGHT (429)
+  McKAY (433)
+  SIDNEY (437)
+  THE MARRIAGE IN THE SKIES (438)
+  FATHERLAND (449)
+  MARY’S GRIEF AND JOY (451)
+  HOLLY SPRINGS (453)
+  TOLLING BELL (459)
+  SHINING STAR (461)
+  OUR HUMBLE FAITH (463)
+  LISBON (467)*
+    BRISTOL (468)
+  THE SAVIOR’S NAME (471)
+  THE THRONE OF GRACE (476)
+  MY RISING SUN (478)
+  ETERNAL LIGHT (483)
+  HEAVENLY UNION (484)
+  SOLDIER’S DELIGHT (487)
+  AS WE GO ON (488)
+  OH, WHAT LOVE (491)
+  AMANDA RAY (493)
+  BIG CREEK (494)
+  A CHARGE TO KEEP (502)
+  JOYFUL (513)
+  FEDERAL STREET (515)
+  DeLONG (516)
+  PLEYEL’S HYMN (523)
+  THE 23rd PSALM (524)
+  DURA (531)
+  SUPPLICATION (539)
+  HOME OF THE BLEST (541)
+  PRAISE HIM (544)
+  THE PILGRIM’S WAY (545)
+  INFINITE DELIGHT (562)
+  FAREWELL TO ALL (570)
+  PENITENCE (571)"
+)
+
+remove_list_tidy = removed_text %>% 
+  str_extract_all("[0-9]+b|[0-9]+t|[0-9]+") %>% 
+  unlist()
+
+survival_df <- readRDS("survival_data.Rds") %>% 
+  mutate(removed = 
+           case_when(
+             PageNum %in% remove_list_tidy ~ 1,
+             TRUE ~ 0)
+  )
+
+survdiff(Surv(time_to_event_days, event_status) ~ removed, data = survival_df)
+
+# Top songs
+con %>% dbGetQuery(
+  "SELECT *
+  FROM SONG_STATS"
+) %>% view()
+
+song_stats = con %>% dbGetQuery("SELECT * FROM SONG_STATS") %>% 
+  filter(year == 2024 & rank < 201)
+
+survival_df <- readRDS("survival_data.Rds") %>% 
+#  filter(year(date_first_exposure) %in% c(2023,2024)) %>% 
+  right_join(song_stats, by = join_by("song_id" == "song_id")) %>% 
+  mutate(top = 
+           case_when(
+             rank %in% c(1:100) ~ 1,
+             TRUE ~ 0)
+  )
+
+survdiff(Surv(time_to_event_days, event_status) ~ top, data = survival_df)
+
