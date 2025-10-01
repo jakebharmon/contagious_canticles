@@ -81,5 +81,4 @@ removed_text = c(
 
 remove_list_tidy = removed_text %>% 
   str_extract_all("[0-9]+b|[0-9]+t|[0-9]+") %>% 
-  list() %>% 
-  print()
+  list() 

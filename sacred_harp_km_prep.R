@@ -36,18 +36,18 @@ first_sung_df = minutes %>%
 # A person is "exposed" to a song on any date they were a leader at a meeting 
 # where that song was sung.
 
-# First, get a list of all leaders who attended each meeting date
+# First get a list of all leaders who attended each meeting date
 attendance_df = minutes %>%
   distinct(date, id, leader_id)
 
-# Next, get a list of all songs sung at each meeting date
+# Next get a list of all songs sung at each meeting date
 songs_at_meeting_df = minutes %>%
   distinct(date, id, song_id)
 
-# Now, we join these two tables to find every possible leader-song-date combo
+# Now we join these two tables to find every possible leader-song-date combo
 exposure_df = attendance_df %>%
   inner_join(songs_at_meeting_df, by = "date") %>%
-  # Now, for each unique leader-song pair, find the first date
+  # Now for each unique leader-song pair, find the first date
   group_by(leader_id, song_id) %>%
   summarise(
     date_first_exposure = min(date),
@@ -70,7 +70,7 @@ final_df = full_join(exposure_df,
   ) %>%
   # Filter out combos which where time to event is zero, which means that
   # a person sung a song at the first meeting which it was heard; likely
-  # meaning they otherwise heard the song beforehand. Also filter
+  # meaning they otherwise heard the song beforehand. 
   filter((time_to_event_days != 0 | is.na(time_to_event_days) == TRUE) & time_to_event_days <= 365) %>% 
   drop_na()
 

@@ -1,5 +1,6 @@
 library(tidyverse)
 library(survival)
+library(RSQLite)
 
 base_data <- readRDS("~/Documents/sacred_harp_km/survival_data.Rds")
 
@@ -14,3 +15,16 @@ summary_table <- summary(survival_data)$table %>%
   distinct()
 
 write_csv(summary_table, "cc_median_survival_curve_summary.csv")
+
+
+###
+# Connect to SQl Database
+con = dbConnect(SQLite(), "minutes.db")
+
+# Create table of all data tables
+tables = as.data.frame(dbListTables(con))
+
+# Query combing song data
+sql_minutes = con %>% dbGetQuery(
+  "SELECT *
+  FROM leaders")
